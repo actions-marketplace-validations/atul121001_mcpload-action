@@ -1,0 +1,171 @@
+# Marketplace wrapper for https://github.com/atul121001/mcpload (action/ folder).
+# Generated from mcpload v0.1.1 action/action.yml. Do not edit by hand.
+name: mcpload MCP load test
+description: "Load and soak test a remote MCP server: per-tool p95/p99 and error budgets, memory and session leak checks, and a pass/fail gate for CI."
+author: Atul Mishra
+branding:
+  icon: activity
+  color: blue
+inputs:
+  url:
+    description: MCP endpoint to test (streamable HTTP), e.g. http://localhost:3001/mcp. Don't put secrets in URLs or extra-args; they're printed in the log — use env.
+    required: true
+  scenario:
+    description: Scenario script. Empty = bundled agent-session (or bundled soak when soak-min is set). A bare name (agent-session, burst, soak, lb-check, oauth-refresh) picks the bundled script; anything else is a path relative to the workspace.
+    required: false
+    default: ""
+  protocol:
+    description: auto | 2026-07-28 | 2025-11-25 | 2025-06-18 | ...
+    required: false
+    default: auto
+  vus:
+    description: Virtual users (scenario default when empty)
+    required: false
+    default: ""
+  duration:
+    description: Test duration, e.g. 2m (scenario default when empty)
+    required: false
+    default: ""
+  soak-min:
+    description: Constant-load minutes for a soak run (switches the default scenario to soak)
+    required: false
+    default: ""
+  warmup-min:
+    description: Soak warm-up minutes (default 10% of soak-min, at least 1)
+    required: false
+    default: ""
+  cooldown-min:
+    description: Soak cool-down minutes (default 5)
+    required: false
+    default: ""
+  sampler:
+    description: Server resource sampler, none | docker | prometheus. Leak verdicts need docker or prometheus.
+    required: false
+    default: none
+  container:
+    description: Container name for sampler=docker
+    required: false
+    default: ""
+  prom-url:
+    description: Prometheus /metrics URL of the server for sampler=prometheus
+    required: false
+    default: ""
+  interval:
+    description: Sampling / series bucket interval, e.g. 10s
+    required: false
+    default: ""
+  p95-ms:
+    description: Default per-tool p95 budget in ms (scenario default 800)
+    required: false
+    default: ""
+  p99-ms:
+    description: Default per-tool p99 budget in ms (scenario default 2000)
+    required: false
+    default: ""
+  err-rate:
+    description: Default per-tool error-rate budget as a fraction (scenario default 0.01)
+    required: false
+    default: ""
+  env:
+    description: 'Extra scenario environment, one K=V per line (e.g. TOOL_MIX={"search":1}, MCP_TOKEN=...). Blank lines and lines starting with # are ignored.'
+    required: false
+    default: ""
+  label:
+    description: Short display name of the target in the report
+    required: false
+    default: ""
+  extra-args:
+    description: "Extra arguments appended to `mcpload run`, split on spaces, tabs and newlines, so one or more arguments per line works, e.g. --leak-slope-mb-per-min 2. Quotes are not interpreted, so a single argument can't contain spaces (use env for values like that). Blank lines and lines starting with # are ignored. Don't put secrets in URLs or extra-args; they're printed in the log — use env."
+    required: false
+    default: ""
+  upload-url:
+    description: Optional. Base URL of a server that accepts report uploads (POST {url}/api/v1/runs). The report is uploaded when this and api-key are set.
+    required: false
+    default: ""
+  api-key:
+    description: API key for the upload server (pass a secret, e.g. secrets.MCPLOAD_KEY)
+    required: false
+    default: ""
+  comment-on-pr:
+    description: Post/update a summary comment on the pull request (needs pull-requests write permission). Don't combine with pull_request_target on untrusted PR code.
+    required: false
+    default: "false"
+  github-token:
+    description: Token used for the PR comment
+    required: false
+    default: ${{ github.token }}
+  fail-on:
+    description: fail = fail the step when the run fails its verdicts or budgets; never = only report. A tool error (no report produced, exit code 2) always fails the step.
+    required: false
+    default: fail
+  output-dir:
+    description: Directory (relative to the workspace) for report.json and report.html
+    required: false
+    default: mcpload-report
+  artifact-name:
+    description: Name of the uploaded workflow artifact; must be unique per workflow run. Also keys the PR comment.
+    required: false
+    default: mcpload-report
+  go-version:
+    description: Go version used to build k6 (xk6) and the mcpload CLI
+    required: false
+    default: "1.26"
+  xk6-version:
+    description: xk6 version to install (go install go.k6.io/xk6@<version>)
+    required: false
+    default: v1.4.14
+outputs:
+  passed:
+    description: "'true' when the run passed its verdicts and budgets, else 'false'"
+    value: ${{ steps.mcpload.outputs.passed }}
+  result:
+    description: pass | fail | error
+    value: ${{ steps.mcpload.outputs.result }}
+  exit-code:
+    description: Exit code of `mcpload run` (0 pass, 1 fail, 2 error)
+    value: ${{ steps.mcpload.outputs.exit-code }}
+  report-path:
+    description: Absolute path of report.json
+    value: ${{ steps.mcpload.outputs.report-path }}
+  html-path:
+    description: Absolute path of report.html
+    value: ${{ steps.mcpload.outputs.html-path }}
+  run-url:
+    description: URL returned by the upload server, if any (empty when not uploaded)
+    value: ${{ steps.mcpload.outputs.run-url }}
+  artifact-url:
+    description: URL of the uploaded report artifact
+    value: ${{ steps.mcpload.outputs.artifact-url }}
+runs:
+  using: composite
+  steps:
+    - id: mcpload
+      uses: atul121001/mcpload/action@v0.1.1
+      with:
+        url: ${{ inputs.url }}
+        scenario: ${{ inputs.scenario }}
+        protocol: ${{ inputs.protocol }}
+        vus: ${{ inputs.vus }}
+        duration: ${{ inputs.duration }}
+        soak-min: ${{ inputs.soak-min }}
+        warmup-min: ${{ inputs.warmup-min }}
+        cooldown-min: ${{ inputs.cooldown-min }}
+        sampler: ${{ inputs.sampler }}
+        container: ${{ inputs.container }}
+        prom-url: ${{ inputs.prom-url }}
+        interval: ${{ inputs.interval }}
+        p95-ms: ${{ inputs.p95-ms }}
+        p99-ms: ${{ inputs.p99-ms }}
+        err-rate: ${{ inputs.err-rate }}
+        env: ${{ inputs.env }}
+        label: ${{ inputs.label }}
+        extra-args: ${{ inputs.extra-args }}
+        upload-url: ${{ inputs.upload-url }}
+        api-key: ${{ inputs.api-key }}
+        comment-on-pr: ${{ inputs.comment-on-pr }}
+        github-token: ${{ inputs.github-token }}
+        fail-on: ${{ inputs.fail-on }}
+        output-dir: ${{ inputs.output-dir }}
+        artifact-name: ${{ inputs.artifact-name }}
+        go-version: ${{ inputs.go-version }}
+        xk6-version: ${{ inputs.xk6-version }}
