@@ -1,7 +1,7 @@
 # Marketplace wrapper for https://github.com/atul121001/mcpload (action/ folder).
 # Generated from mcpload v0.1.1 action/action.yml. Do not edit by hand.
 name: mcpload MCP load test
-description: "Load and soak test a remote MCP server: per-tool p95/p99 and error budgets, memory and session leak checks, and a pass/fail gate for CI."
+description: "Load and soak test MCP servers in CI: per-tool latency and error budgets, plus memory and session leak checks."
 author: Atul Mishra
 branding:
   icon: activity
