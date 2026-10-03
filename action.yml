@@ -1,5 +1,5 @@
 # Marketplace wrapper for https://github.com/atul121001/mcpload (action/ folder).
-# Generated from mcpload v0.1.3 action/action.yml. Do not edit by hand.
+# Generated from mcpload v0.2.0 action/action.yml. Do not edit by hand.
 name: mcpload MCP load test
 description: "Load and soak test MCP servers in CI: per-tool latency and error budgets, plus memory and session leak checks."
 author: Atul Mishra
@@ -11,7 +11,7 @@ inputs:
     description: MCP endpoint to test (streamable HTTP), e.g. http://localhost:3001/mcp. Don't put secrets in URLs or extra-args; they're printed in the log — use env.
     required: true
   scenario:
-    description: Scenario script. Empty = bundled agent-session (or bundled soak when soak-min is set). A bare name (agent-session, burst, soak, lb-check, isolation, oauth-refresh) picks the bundled script; anything else is a path relative to the workspace.
+    description: Scenario script. Empty = bundled agent-session (or bundled soak when soak-min is set). A bare name (agent-session, agent-workflow, burst, soak, lb-check, isolation, step-load, oauth-refresh) picks the bundled script; anything else is a path relative to the workspace.
     required: false
     default: ""
   protocol:
@@ -144,7 +144,7 @@ runs:
   using: composite
   steps:
     - id: mcpload
-      uses: atul121001/mcpload/action@v0.1.3
+      uses: atul121001/mcpload/action@v0.2.0
       with:
         url: ${{ inputs.url }}
         scenario: ${{ inputs.scenario }}
