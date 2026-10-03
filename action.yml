@@ -1,7 +1,7 @@
 # Marketplace wrapper for https://github.com/atul121001/mcpload (action/ folder).
-# Generated from mcpload v0.3.0 action/action.yml. Do not edit by hand.
+# Generated from mcpload v0.4.0 action/action.yml. Do not edit by hand.
 name: mcpload MCP load test
-description: "Load and soak test MCP servers in CI: per-tool latency and error budgets, plus memory and session leak checks."
+description: "AI-agent load & soak testing for MCP servers: per-tool budgets, leaks, restarts, rolling deploys and PR regressions."
 author: Atul Mishra
 branding:
   icon: activity
@@ -99,9 +99,21 @@ inputs:
     required: false
     default: ${{ github.token }}
   fail-on:
-    description: fail = fail the step when the run fails its verdicts or budgets; never = only report. A tool error (no report produced, exit code 2) always fails the step.
+    description: fail = fail the step when the run fails its verdicts or budgets (including a regression against the baseline, unless fail-on-regression is false); never = only report. A tool error (no report produced, exit code 2) always fails the step.
     required: false
     default: fail
+  baseline:
+    description: Optional. A baseline report.json (path relative to the workspace, or an http(s) URL) to compare this run with; adds the regression verdict, a comparison table in the summary and PR comment, and the regressed output.
+    required: false
+    default: ''
+  baseline-branch:
+    description: Optional, used when baseline is empty. Compare with the report artifact (same artifact-name) of the latest successful non-PR run of this workflow on this branch, e.g. main. Needs permissions actions read.
+    required: false
+    default: ''
+  fail-on-regression:
+    description: true = a regression against the baseline fails the run; false = the regression verdict only warns.
+    required: false
+    default: 'true'
   output-dir:
     description: Directory (relative to the workspace) for report.json and report.html
     required: false
@@ -140,11 +152,14 @@ outputs:
   artifact-url:
     description: URL of the uploaded report artifact
     value: ${{ steps.mcpload.outputs.artifact-url }}
+  regressed:
+    description: "'true' when the run was compared with a baseline and regressed, else 'false'"
+    value: ${{ steps.mcpload.outputs.regressed }}
 runs:
   using: composite
   steps:
     - id: mcpload
-      uses: atul121001/mcpload/action@v0.3.0
+      uses: atul121001/mcpload/action@v0.4.0
       with:
         url: ${{ inputs.url }}
         scenario: ${{ inputs.scenario }}
@@ -170,6 +185,9 @@ runs:
         comment-on-pr: ${{ inputs.comment-on-pr }}
         github-token: ${{ inputs.github-token }}
         fail-on: ${{ inputs.fail-on }}
+        baseline: ${{ inputs.baseline }}
+        baseline-branch: ${{ inputs.baseline-branch }}
+        fail-on-regression: ${{ inputs.fail-on-regression }}
         output-dir: ${{ inputs.output-dir }}
         artifact-name: ${{ inputs.artifact-name }}
         go-version: ${{ inputs.go-version }}
