@@ -1,5 +1,5 @@
 # Marketplace wrapper for https://github.com/atul121001/mcpload (action/ folder).
-# Generated from mcpload v0.4.1 action/action.yml. Do not edit by hand.
+# Generated from mcpload v0.5.0 action/action.yml. Do not edit by hand.
 name: mcpload MCP load test
 description: "AI-agent load & soak testing for MCP servers: per-tool budgets, leaks, restarts, rolling deploys and PR regressions."
 author: Atul Mishra
@@ -159,7 +159,7 @@ runs:
   using: composite
   steps:
     - id: mcpload
-      uses: atul121001/mcpload/action@v0.4.1
+      uses: atul121001/mcpload/action@v0.5.0
       with:
         url: ${{ inputs.url }}
         scenario: ${{ inputs.scenario }}
