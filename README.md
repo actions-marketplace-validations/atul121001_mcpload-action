@@ -70,6 +70,7 @@ All inputs and outputs are listed in [action.yml](action.yml). The most used one
 | `p95-ms`, `p99-ms`, `err-rate` | Speed and error budgets, applied to every tool |
 | `soak-min`, `sampler`, `prom-url` | Soak test and server memory sampling |
 | `env` | Extra settings, one `KEY=value` per line (tokens, `TOOL_MIX`, …) |
+| `baseline-branch`, `fail-on-regression` | Compare each tool with the last run on that branch (e.g. `main`) and fail on a regression |
 | `comment-on-pr` | Post the summary on the pull request |
 | `fail-on` | `fail` (default) fails the job on a failed check; `never` only reports |
 
